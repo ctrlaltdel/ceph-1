@@ -54,10 +54,10 @@ rbd="${1}"
 base="${2}"
 rbd_size="${3}"
 if [ "${1}" = "-h" -o "${1}" = "--help" -o "${rbd}" = "" -o "${base}" = "" -o "${rbd_size}" = "" ]; then
-  echo "USAGE: $(echo ${0} | awk -F/ '{print $NF}') RESTORE_RBD BLOCK_PREFIX RBD_SIZE_IN_BYTES"
+  echo "USAGE: $(echo ${0} | gawk -F/ '{print $NF}') RESTORE_RBD BLOCK_PREFIX RBD_SIZE_IN_BYTES"
   exit 1
 fi
-base_files=$(ls -1 ${base}.* 2>/dev/null | wc -l | awk '{print $1}')
+base_files=$(ls -1 ${base}.* 2>/dev/null | wc -l | gawk '{print $1}')
 if [ ${base_files} -lt 1 ]; then
   echo "COULD NOT FIND FILES FOR ${base} IN $(pwd)"
   exit
@@ -68,6 +68,6 @@ fi
 dd if=/dev/zero of=${rbd} bs=1 count=0 seek=${rbd_size} 2>/dev/null
 
 for file_name in $(ls -1 ${base}.* 2>/dev/null); do
-  seek_loc=$(echo ${file_name} | awk -F_ '{print $1}' | awk -v os=${obj_size} -v rs=${rebuild_block_size} -F. '{print os*strtonum("0x" $NF)/rs}')
+  seek_loc=$(echo ${file_name} | gawk -F_ '{print $1}' | gawk -v os=${obj_size} -v rs=${rebuild_block_size} -F. '{print os*strtonum("0x" $NF)/rs}')
   dd conv=notrunc if=${file_name} of=${rbd} seek=${seek_loc} bs=${rebuild_block_size} 2>/dev/null
 done
